@@ -2,63 +2,80 @@
 #include <time.h>
 using namespace sf;
 
-int N=30,M=20;
-int sz=16;
-int w = sz*N;
-int h = sz*M;
+const int GRID_HOR=30,GRID_VER=20;
+int pixelsPerSquare=16;
+int windowWidth = pixelsPerSquare*GRID_HOR;
+int windowHeight = pixelsPerSquare*GRID_VER;
 
-int dir,num=4;
+int direction;
+
+int snakeLength =4;
 
 struct Snake 
-{ int x,y;}  s[100];
+{ int segmentXpos,segmentYpos;}  snakeBody[100];
 
 struct Fruit
-{ int x,y;} f;
+{ int x,y;} fruit;
 
 void Tick()
  {
-    for (int i=num;i>0;--i)
-     {s[i].x=s[i-1].x; s[i].y=s[i-1].y;}
+    for (int i = snakeLength; i > 0; --i)
+    {  
+        snakeBody[i].segmentXpos = snakeBody[i-1].segmentXpos; 
+        snakeBody[i].segmentYpos = snakeBody[i-1].segmentYpos;
+    }
 
-    if (dir==0) s[0].y+=1;      
-    if (dir==1) s[0].x-=1;        
-    if (dir==2) s[0].x+=1;         
-    if (dir==3) s[0].y-=1;   
+    if (direction==0) snakeBody[0].segmentYpos+=1;      
+    if (direction==1) snakeBody[0].segmentXpos-=1;        
+    if (direction==2) snakeBody[0].segmentXpos+=1;         
+    if (direction==3) snakeBody[0].segmentYpos-=1;   
 
-    if ((s[0].x==f.x) && (s[0].y==f.y)) 
-     {num++; f.x=rand()%N; f.y=rand()%M;}
+    if ((snakeBody[0].segmentXpos==fruit.x) && (snakeBody[0].segmentYpos==fruit.y)) 
+     {
+        snakeLength++; 
+        fruit.x=rand()%GRID_HOR; 
+        fruit.y=rand()%GRID_VER;
+    }
 
-    if (s[0].x>N) s[0].x=0;  if (s[0].x<0) s[0].x=N;
-    if (s[0].y>M) s[0].y=0;  if (s[0].y<0) s[0].y=M;
+    if (snakeBody[0].segmentXpos>GRID_HOR)  snakeBody[0].segmentXpos=0;  
+    if (snakeBody[0].segmentXpos<0)         snakeBody[0].segmentXpos=GRID_HOR;
+    if (snakeBody[0].segmentYpos>GRID_VER)  snakeBody[0].segmentYpos=0;  
+    if (snakeBody[0].segmentYpos<0)         snakeBody[0].segmentYpos=GRID_VER;
  
-    for (int i=1;i<num;i++)
-     if (s[0].x==s[i].x && s[0].y==s[i].y)  num=i;
+    for (int i = 1; i < snakeLength; i++)
+    {
+        if (snakeBody[0].segmentXpos == snakeBody[i].segmentXpos && 
+            snakeBody[0].segmentYpos == snakeBody[i].segmentYpos)  
+        {
+            snakeLength = i;
+        }
+    }
  }
 
 int snake()
 {  
     srand(time(0));
 
-    RenderWindow window(VideoMode(w, h), "Snake Game!");
+    RenderWindow window(VideoMode(windowWidth, windowHeight), "Snake Game!");
 
-    Texture t1,t2;
-    t1.loadFromFile("images/snake/white.png");
-    t2.loadFromFile("images/snake/red.png");
+    Texture t1White,t2Red;
+    t1White.loadFromFile("images/snake/white.png");
+    t2Red.loadFromFile("images/snake/red.png");
 
-    Sprite sprite1(t1);
-    Sprite sprite2(t2);
+    Sprite spriteBackground(t1White);
+    Sprite spriteSnake(t2Red);
 
     Clock clock;
-    float timer=0, delay=0.1;
+    float tickTimer=0, tickDelay=0.1;
 
-    f.x=10;
-    f.y=10; 
+    fruit.x=10;
+    fruit.y=10; 
     
     while (window.isOpen())
     {
-        float time = clock.getElapsedTime().asSeconds();
+        float elapsedTime = clock.getElapsedTime().asSeconds();
         clock.restart();
-        timer+=time; 
+        tickTimer += elapsedTime; 
 
         Event e;
         while (window.pollEvent(e))
@@ -67,24 +84,35 @@ int snake()
                 window.close();
         }
 
-        if (Keyboard::isKeyPressed(Keyboard::Left)) dir=1;   
-        if (Keyboard::isKeyPressed(Keyboard::Right)) dir=2;    
-        if (Keyboard::isKeyPressed(Keyboard::Up)) dir=3;
-        if (Keyboard::isKeyPressed(Keyboard::Down)) dir=0;
+        if (Keyboard::isKeyPressed(Keyboard::Left)) direction=1;   
+        if (Keyboard::isKeyPressed(Keyboard::Right)) direction=2;    
+        if (Keyboard::isKeyPressed(Keyboard::Up)) direction=3;
+        if (Keyboard::isKeyPressed(Keyboard::Down)) direction=0;
 
-        if (timer>delay) {timer=0; Tick();}
+        if (tickTimer>tickDelay) 
+        {
+            tickTimer=0; 
+            Tick();
+        }
 
    ////// draw  ///////
     window.clear();
 
-    for (int i=0; i<N; i++) 
-      for (int j=0; j<M; j++) 
-        { sprite1.setPosition(i*sz, j*sz);  window.draw(sprite1); }
+    for (int i=0; i<GRID_HOR; i++) 
+      for (int j=0; j<GRID_VER; j++) 
+        { 
+          spriteBackground.setPosition(i * pixelsPerSquare, j * pixelsPerSquare);  
+          window.draw(spriteBackground); 
+        }
 
-    for (int i=0;i<num;i++)
-        { sprite2.setPosition(s[i].x*sz, s[i].y*sz);  window.draw(sprite2); }
+    for (int i=0;i<snakeLength;i++)
+        { 
+        spriteSnake.setPosition(snakeBody[i].segmentXpos * pixelsPerSquare, snakeBody[i].segmentYpos * pixelsPerSquare);
+        window.draw(spriteSnake); 
+        }
    
-    sprite2.setPosition(f.x*sz, f.y*sz);  window.draw(sprite2);    
+    spriteSnake.setPosition(fruit.x * pixelsPerSquare, fruit.y * pixelsPerSquare);  
+    window.draw(spriteSnake);    
 
     window.display();
     }
