@@ -6,9 +6,9 @@
 
 using namespace sf;
 
-const int PIXELS_PER_SQUARE     = 16;
-const int WINDOW_WIDTH          = PIXELS_PER_SQUARE * GRID_HOR_MAX;
-const int WINDOW_HEIGHT         = PIXELS_PER_SQUARE * GRID_VER_MAX;
+const int m_PIXELS_PER_SQUARE   = 16;
+const int m_WINDOW_WIDTH        = m_PIXELS_PER_SQUARE * GRID_HOR_MAX;
+const int m_WINDOW_HEIGHT       = m_PIXELS_PER_SQUARE * GRID_VER_MAX;
 
 Snek m_snek;
 
@@ -30,10 +30,8 @@ void Tick()
 
     m_snek.MoveSnakeHead();
 
-    Vec2Int fruitPosition = m_snek.HeadTouchFruit(m_fruit.m_fruitStruct.posX, m_fruit.m_fruitStruct.posY,rand(), rand());
-    m_fruit.m_fruitStruct.posX = fruitPosition.x;
-    m_fruit.m_fruitStruct.posY = fruitPosition.y;
-
+    m_fruit.m_fruitStruct.pos = m_snek.HeadTouchFruit(m_fruit.m_fruitStruct.pos, rand(), rand());
+    
     m_snek.WrapSnakeOnScreenBounds();
 
     m_snek.CheckIfSnakeIntersects();
@@ -68,6 +66,11 @@ void GetInput(RenderWindow & t_window)
     if (Keyboard::isKeyPressed(Keyboard::Down))     m_snek.snakeDirection = SOUTH;
 }
 
+Vec2Int getScreenPos(int xPos, int yPos)
+{
+    return Vec2Int{ xPos * m_PIXELS_PER_SQUARE, yPos * m_PIXELS_PER_SQUARE };
+}
+
 void DrawGame(RenderWindow& t_window, Sprite& t_spriteBg, Sprite& t_spriteSnake)
 {
     t_window.clear();
@@ -75,21 +78,19 @@ void DrawGame(RenderWindow& t_window, Sprite& t_spriteBg, Sprite& t_spriteSnake)
     for (int iX = 0; iX < GRID_HOR_MAX; iX++)
         for (int iY = 0; iY < GRID_VER_MAX; iY++)
         {
-            t_spriteBg.setPosition(iX * PIXELS_PER_SQUARE, iY * PIXELS_PER_SQUARE);
+            t_spriteBg.setPosition(iX * m_PIXELS_PER_SQUARE, iY * m_PIXELS_PER_SQUARE);
             t_window.draw(t_spriteBg);
         }
 
     for (int i = 0; i < m_snek.snakeLengthCurrent; i++)
     {
-        int snakeSegmentScreenXPos = m_snek.snakeBody[i].segmentXpos * PIXELS_PER_SQUARE;
-        int snakeSegmentScreenYPos = m_snek.snakeBody[i].segmentYpos * PIXELS_PER_SQUARE;
-        t_spriteSnake.setPosition(snakeSegmentScreenXPos, snakeSegmentScreenYPos);
+        Vec2Int segScreenPos = getScreenPos(m_snek.snakeBody[i].segmentXpos, m_snek.snakeBody[i].segmentYpos);
+        t_spriteSnake.setPosition(segScreenPos.x, segScreenPos.y);
         t_window.draw(t_spriteSnake);
     }
 
-    int fruitScreenXPos = m_fruit.m_fruitStruct.posX * PIXELS_PER_SQUARE;
-    int fruitScreenYPos = m_fruit.m_fruitStruct.posY * PIXELS_PER_SQUARE;
-    t_spriteSnake.setPosition(fruitScreenXPos, fruitScreenYPos);
+    Vec2Int fruitScreenPos = getScreenPos(m_fruit.m_fruitStruct.pos.x, m_fruit.m_fruitStruct.pos.y);
+    t_spriteSnake.setPosition(fruitScreenPos.x, fruitScreenPos.y);
     t_window.draw(t_spriteSnake);
 
     t_window.display();
@@ -102,7 +103,7 @@ int snake()
     Clock clock;
     float tickTimer = 0;
 
-    RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Snake Game!");
+    RenderWindow window(VideoMode(m_WINDOW_WIDTH, m_WINDOW_HEIGHT), "Snake Game!");
 
     Texture t1White, t2Red;
     t1White.loadFromFile("images/snake/white.png");
@@ -111,7 +112,7 @@ int snake()
     Sprite spriteBackground(t1White);
     Sprite spriteSnake(t2Red);
 
-    while (window.isOpen())
+    while (window.isOpen()) // This seems to be the remaining control flag in code. Not sure how to replace with break, continue or return...!
     {
         GetInput(window);
         HandleTickDelay(window, clock, tickTimer);

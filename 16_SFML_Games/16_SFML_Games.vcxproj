@@ -90,7 +90,6 @@
     <ClCompile Include="outrun.cpp" />
     <ClCompile Include="racing.cpp" />
     <ClCompile Include="snake.cpp" />
-    <ClCompile Include="SnakeCreature.cpp" />
     <ClCompile Include="Snek.cpp" />
     <ClCompile Include="tetris.cpp" />
     <ClCompile Include="tron.cpp" />
@@ -101,7 +100,6 @@
     <ClInclude Include="Fruit.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="SnakeCreature.h" />
     <ClInclude Include="Snek.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

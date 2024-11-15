@@ -24,7 +24,7 @@ public:
 
 	void MoveSnakeBody();
 	void MoveSnakeHead();
-	Vec2Int HeadTouchFruit(int t_fruitPosX, int t_fruitPosY, int t_randA, int t_randB);
+	Vec2Int HeadTouchFruit(Vec2Int t_pos, int t_randA, int t_randB);
 	void WrapSnakeOnScreenBounds();
 	void CheckIfSnakeIntersects();
 

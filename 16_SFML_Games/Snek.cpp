@@ -38,19 +38,19 @@ void Snek::MoveSnakeHead()
     }
 }
 
-Vec2Int Snek::HeadTouchFruit(int t_fruitPosX, int t_fruitPosY, int t_randA, int t_randB)
+Vec2Int Snek::HeadTouchFruit(Vec2Int t_pos, int t_randA, int t_randB)
 {
-    bool headTouchingFruitX = snakeBody[SNAKE_HEAD].segmentXpos == t_fruitPosX;
-    bool headTouchingFruitY = snakeBody[SNAKE_HEAD].segmentYpos == t_fruitPosY;
+    bool headTouchingFruitX = snakeBody[SNAKE_HEAD].segmentXpos == t_pos.x;
+    bool headTouchingFruitY = snakeBody[SNAKE_HEAD].segmentYpos == t_pos.y;
 
     if (headTouchingFruitX && headTouchingFruitY)
     {
         snakeLengthCurrent++;
-        t_fruitPosX = t_randA % GRID_HOR_MAX;
-        t_fruitPosY = t_randB % GRID_VER_MAX;
+        t_pos.x = t_randA % GRID_HOR_MAX;
+        t_pos.y = t_randB % GRID_VER_MAX;
     }
 
-    Vec2Int output = { t_fruitPosX, t_fruitPosY };
+    Vec2Int output = { t_pos.x, t_pos.y };
 
     return output;
 }

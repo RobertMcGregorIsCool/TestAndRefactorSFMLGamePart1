@@ -1,4 +1,6 @@
 #pragma once
+#include "Snek.h"
+
 class Fruit
 {
 public:
@@ -7,8 +9,7 @@ public:
 
 	struct FruitStruct
 	{
-		int posX = 0;
-		int posY = 0;
+		Vec2Int pos = { 0,0 };
 	} m_fruitStruct;
 
 private:
